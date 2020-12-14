@@ -1,0 +1,66 @@
+{
+  "name": "oryx",
+  "version": "0.0.1",
+  "description": "An authentication microservice based on JWT strategy",
+  "license": "MPL-2.0",
+  "scripts": { "start": "esy x oryx", "test": "esy x test-auth" },
+  "dependencies": {
+    "@opam/caqti": "1.2.3",
+    "@opam/caqti-driver-postgresql": "1.2.4",
+    "@opam/caqti-lwt": "1.2.0",
+    "@opam/emile": "1.1",
+    "@opam/jwto": "0.3.0",
+    "@opam/logs": "0.7.0",
+    "@opam/opium": "0.19.0",
+    "@opam/ppx_deriving": "4.5",
+    "@opam/ppx_deriving_yojson": "3.5.3",
+    "@opam/ppx_rapper": "1.1.0",
+    "@opam/safepass": "2.0",
+    "@opam/uuidm": "0.9.7"
+  },
+  "devDependencies": {
+    "@opam/alcotest": "1.2.3",
+    "@opam/dune": ">=2.7",
+    "ocaml": "~4.10",
+    "@pesy/esy-pesy": "0.1.0-alpha.11",
+    "@opam/ocamlformat": "*",
+    "@opam/ocaml-lsp-server": "ocaml/ocaml-lsp:ocaml-lsp-server.opam"
+  },
+  "esy": {
+    "build": "dune build -p #{self.name}",
+    "buildDev": "pesy build",
+    "release": { "releasedBinaries": [ "oryx" ] }
+  },
+  "buildDirs": {
+    "lib": {
+      "namespace": "Auth",
+      "name": "oryx.lib",
+      "preprocess": [
+        "pps", "ppx_deriving.std", "ppx_deriving.enum", "ppx_deriving.show",
+        "ppx_deriving_yojson", "ppx_rapper"
+      ],
+      "require": [
+        "emile", "safepass", "uuidm", "jwto", "caqti", "caqti-lwt",
+        "caqti-driver-postgresql", "ppx_rapper.runtime", "opium", "logs"
+      ]
+    },
+    "bin": {
+      "main": "server",
+      "bin": "server.ml",
+      "name": "oryx",
+      "require": [ "oryx.lib", "opium" ]
+    },
+    "test": {
+      "namespace": "SUT",
+      "name": "oryx.test",
+      "ocamloptFlags": [ "-linkall", "-g" ],
+      "require": [ "oryx.lib", "alcotest" ]
+    },
+    "test-runner": {
+      "main": "test_auth",
+      "bin": "runner.ml",
+      "name": "test-auth",
+      "require": [ "oryx.test" ]
+    }
+  }
+}
